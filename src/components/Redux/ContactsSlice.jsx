@@ -81,6 +81,8 @@ const contactsSlice = createSlice({
   },
 });
 
+// check
+
 export const { setFilter } = contactsSlice.actions;
 
 export default contactsSlice.reducer;
