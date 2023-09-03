@@ -1,6 +1,6 @@
+// App.jsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { nanoid } from 'nanoid';
 import ContactForm from './components/ContactForm/ContactForm';
 import ContactList from './components/ContactList/ContactList';
 import Filter from './components/Filter/Filter';
@@ -8,35 +8,29 @@ import styles from './App.module.css';
 import {
   addContact,
   deleteContact,
+  fetchContacts,
   setFilter,
 } from './components/Redux/ContactsSlice';
 
 const App = () => {
-  // Додайте станові змінні
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const contacts = useSelector(state => state.contacts.contacts);
+  const contacts = useSelector(state => state.contacts.items);
   const filter = useSelector(state => state.contacts.filter);
+  const isLoading = useSelector(state => state.contacts.isLoading);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    const savedFilter = localStorage.getItem('filter');
-    if (savedFilter) {
-      dispatch(setFilter(savedFilter));
-    }
+    dispatch(fetchContacts());
   }, [dispatch]);
 
-  useEffect(() => {
-    localStorage.setItem('filter', filter);
-  }, [filter]);
-
   const handleNameChange = event => {
-    setName(event.target.value); // Використовуйте setName для оновлення стану name
+    setName(event.target.value);
   };
 
   const handleNumberChange = event => {
-    setNumber(event.target.value); // Використовуйте setNumber для оновлення стану number
+    setNumber(event.target.value);
   };
 
   const handleAddContact = event => {
@@ -52,22 +46,21 @@ const App = () => {
     }
 
     const newContact = {
-      id: nanoid(),
       name,
       number,
     };
 
-    dispatch(addContact(newContact)); // Диспатч дії addContact з новим контактом
-    setName(''); // Очистити поле вводу name
-    setNumber(''); // Очистити поле вводу number
+    dispatch(addContact(newContact));
+    setName('');
+    setNumber('');
   };
 
   const handleDeleteContact = contactId => {
-    dispatch(deleteContact(contactId)); // Диспатч дії deleteContact з ідентифікатором контакту
+    dispatch(deleteContact(contactId));
   };
 
   const handleFilterChange = event => {
-    dispatch(setFilter(event.target.value)); // Диспатч дії setFilter зі значенням фільтра
+    dispatch(setFilter(event.target.value));
   };
 
   const filteredContacts = contacts.filter(contact =>
@@ -90,10 +83,14 @@ const App = () => {
 
       <Filter value={filter} onChange={handleFilterChange} />
 
-      <ContactList
-        contacts={filteredContacts}
-        onDeleteContact={handleDeleteContact}
-      />
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <ContactList
+          contacts={filteredContacts}
+          onDeleteContact={handleDeleteContact}
+        />
+      )}
     </div>
   );
 };

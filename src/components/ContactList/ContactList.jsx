@@ -4,7 +4,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { deleteContact } from '../Redux/ContactsSlice';
 import styles from './ContactList.module.css';
 
-const ContactList = ({ contacts, onDeleteContact }) => {
+const ContactList = ({ onDeleteContact }) => {
+  const contacts = useSelector(state => state.contacts.items);
+
+  if (contacts.length === 0) {
+    return <p>No contacts available.</p>;
+  }
+
   return (
     <ul className={styles.list}>
       {contacts.map(contact => (
@@ -25,13 +31,6 @@ const ContactList = ({ contacts, onDeleteContact }) => {
 };
 
 ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
   onDeleteContact: PropTypes.func.isRequired,
 };
 
